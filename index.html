@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人作品集入口網站 | Polka Dot Portfolio</title>
+    <style>
+        /* ==========================================
+           1. 全局變數與粉白點點背景設定
+           ========================================== */
+        :root {
+            --bg-color: #fff0f5;
+            --pink-primary: #ff85a2;
+            --pink-secondary: #f7aef8;
+            --pink-accent: #ff477e;
+            --card-bg-unlocked: rgba(255, 255, 255, 0.85);
+            --card-border-unlocked: #ffb6c1;
+            --text-dark: #4a3e3d;
+            --text-pink: #d81b60;
+            --locked-bg: #1e1e24;
+            --locked-border: #33333d;
+            --locked-text: #666673;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            /* CSS 繪製粉白波卡圓點 (Polka Dot Pattern) */
+            background-image: 
+                radial-gradient(#ffffff 22%, transparent 23%),
+                radial-gradient(#ffffff 22%, transparent 23%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 1rem;
+            position: relative;
+        }
+
+        /* 裝飾性背景光暈 */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 182, 193, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        .container {
+            max-width: 980px;
+            width: 100%;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ==========================================
+           2. 中央大頭貼與個人資訊
+           ========================================== */
+        .profile-section {
+            text-align: center;
+            margin-bottom: 2.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 粉白圓潤頭像框動畫 */
+        .avatar-container {
+            position: relative;
+            width: 135px;
+            height: 135px;
+            margin-bottom: 1.2rem;
+            border-radius: 50%;
+            padding: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff85a2 50%, #f7aef8 100%);
+            box-shadow: 0 10px 25px rgba(255, 133, 162, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.8);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .avatar-container:hover {
+            transform: scale(1.08) rotate(4deg);
+            box-shadow: 0 15px 30px rgba(255, 71, 126, 0.4);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background-color: #ffffff;
+            display: block;
+            border: 3px solid #ffffff;
+        }
+
+        .profile-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-pink);
+            letter-spacing: 1.5px;
+            margin-bottom: 0.4rem;
+            text-shadow: 2px 2px 0px #ffffff, 4px 4px 10px rgba(255, 133, 162, 0.2);
+        }
+
+        .profile-subtitle {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #b56576;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 4px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+
+        /* ==========================================
+           3. 16 個按鈕網格排版 (CSS Grid)
+           ========================================== */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            width: 100%;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 115px;
+            padding: 1.2rem 1rem;
+            border-radius: 22px;
+            text-decoration: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* ------------------------------------------
+           已解鎖狀態按鈕 (Week 1 & 2)
+           ------------------------------------------ */
+        .card.unlocked {
+            background: var(--card-bg-unlocked);
+            border: 2px solid var(--card-border-unlocked);
+            box-shadow: 0 8px 20px rgba(255, 133, 162, 0.15);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+        }
+
+        /* 滑過亮光微粒動畫 */
+        .card.unlocked::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: rotate(45deg) translateY(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .card.unlocked:hover::before {
+            transform: rotate(45deg) translateY(100%);
+        }
+
+        .card.unlocked:hover {
+            transform: translateY(-8px) scale(1.03);
+            background: #ffffff;
+            border-color: var(--pink-accent);
+            box-shadow: 0 14px 28px rgba(255, 71, 126, 0.25);
+        }
+
+        .card.unlocked .week-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--pink-primary);
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .card.unlocked .title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.35;
+        }
+
+        /* ------------------------------------------
+           未解鎖狀態按鈕 (Week 3 - 16) - 黑色風格
+           ------------------------------------------ */
+        .card.locked {
+            background: var(--locked-bg);
+            border: 2px solid var(--locked-border);
+            cursor: not-allowed;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.locked .lock-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card.locked .week-badge {
+            font-size: 0.8rem;
+            color: var(--locked-text);
+            font-weight: 600;
+        }
+
+        .card.locked:hover {
+            border-color: #555566;
+            background: #25252d;
+        }
+
+        .card.locked:hover .lock-icon {
+            transform: scale(1.25) rotate(-12deg);
+        }
+
+        /* 點擊鎖定項目的搖晃動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .card.shake {
+            animation: shake 0.4s ease-in-out;
+            border-color: #ff4757 !important;
+        }
+
+        /* ==========================================
+           4. 響應式佈局 (Responsive Design)
+           ========================================== */
+        @media (max-width: 880px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .profile-name {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                min-height: 100px;
+                padding: 1rem 0.6rem;
+                border-radius: 18px;
+            }
+
+            .card.unlocked .title {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景浪漫粉光 -->
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <!-- 個人檔案區域 -->
+        <header class="profile-section">
+            <div class="avatar-container">
+                <!-- 預設假大頭貼 -->
+                <img src="https://i.postimg.cc/4NYVSstb/IMG-6408.jpg" alt="Avatar" class="avatar-img">
+            </div>
+            <h1 class="profile-name">鄭詠薰</h1>
+            <span class="profile-subtitle">Web Development Portfolio</span>
+        </header>
+
+        <!-- 16 個課程選單按鈕 -->
+        <main class="grid-container">
+            <!-- 已解鎖按鈕 1 -->
+            <a href="w1/index.html" class="card unlocked">
+                <span class="week-badge">Week 01</span>
+                <span class="title">Week 1 - 數位名片</span>
+            </a>
+
+            <!-- 已解鎖按鈕 2 -->
+            <a href="w2/index.html" class="card unlocked">
+                <span class="week-badge">Week 02</span>
+                <span class="title">Week 2 - 今天吃甚麼?</span>
+            </a>
+
+            <!-- 未解鎖按鈕 (Week 3 - 16) -->
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 03</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 04</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 05</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 06</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 07</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 08</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 09</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 10</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 11</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 12</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 13</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 14</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 15</span>
+            </div>
+
+            <div class="card locked" onclick="triggerLockedFeedback(this)">
+                <span class="lock-icon">🔒</span>
+                <span class="week-badge">Week 16</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- 未解鎖項目的點擊反饋腳本 -->
+    <script>
+        function triggerLockedFeedback(element) {
+            element.classList.remove('shake');
+            void element.offsetWidth; // 強制重繪引發動畫
+            element.classList.add('shake');
+        }
+    </script>
+</body>
+</html>
