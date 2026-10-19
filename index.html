@@ -157,7 +157,7 @@
         }
 
         /* ------------------------------------------
-           已解鎖狀態按鈕 (Week 1 & 2)
+           已解鎖狀態按鈕
            ------------------------------------------ */
         .card.unlocked {
             background: var(--card-bg-unlocked);
@@ -208,7 +208,7 @@
         }
 
         /* ------------------------------------------
-           未解鎖狀態按鈕 (Week 3 - 16) - 黑色風格
+           未解鎖狀態按鈕 - 黑色風格
            ------------------------------------------ */
         .card.locked {
             background: var(--locked-bg);
@@ -290,7 +290,6 @@
         <!-- 個人檔案區域 -->
         <header class="profile-section">
             <div class="avatar-container">
-                <!-- 預設假大頭貼 -->
                 <img src="https://i.postimg.cc/4NYVSstb/IMG-6408.jpg" alt="Avatar" class="avatar-img">
             </div>
             <h1 class="profile-name">鄭詠薰</h1>
@@ -311,17 +310,19 @@
                 <span class="title">Week 2 - 今天吃甚麼?</span>
             </a>
 
-            <!-- 未解鎖按鈕 (Week 3 - 16) -->
+            <!-- 未解鎖按鈕 3 -->
             <div class="card locked" onclick="triggerLockedFeedback(this)">
                 <span class="lock-icon">🔒</span>
                 <span class="week-badge">Week 03</span>
             </div>
 
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
+            <!-- 已解鎖按鈕 4 (已調整) -->
+            <a href="w4/index.html" class="card unlocked">
                 <span class="week-badge">Week 04</span>
-            </div>
+                <span class="title">Week 4 - 悄悄話</span>
+            </a>
 
+            <!-- 未解鎖按鈕 (Week 5 - 16) -->
             <div class="card locked" onclick="triggerLockedFeedback(this)">
                 <span class="lock-icon">🔒</span>
                 <span class="week-badge">Week 05</span>
