@@ -1,397 +1,416 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人作品集入口網站 | Polka Dot Portfolio</title>
-    <style>
-        /* ==========================================
-           1. 全局變數與粉白點點背景設定
-           ========================================== */
-        :root {
-            --bg-color: #fff0f5;
-            --pink-primary: #ff85a2;
-            --pink-secondary: #f7aef8;
-            --pink-accent: #ff477e;
-            --card-bg-unlocked: rgba(255, 255, 255, 0.85);
-            --card-border-unlocked: #ffb6c1;
-            --text-dark: #4a3e3d;
-            --text-pink: #d81b60;
-            --locked-bg: #1e1e24;
-            --locked-border: #33333d;
-            --locked-text: #666673;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>朋友對我的動態留言板</title>
+  <style>
+    /* =========================================================
+       1. 全域風格與【粉白波點】背景設定 (CSS 變數區)
+       ========================================================= */
+    :root {
+      /* 【顏色控制區】可在此自由調整主題色彩 */
+      --bg-color: #fff0f5;         /* 底色：柔和淡粉紅 (LavenderBlush) */
+      --dot-color: #ffc0cb;        /* 波點顏色：淺粉紅 (Pink) */
+      --card-bg: rgba(255, 255, 255, 0.92); /* 卡片背景：半透明純白 */
+      --primary-color: #ff69b4;    /* 主視覺顏色：熱帶粉紅 (HotPink) */
+      --text-main: #4a4a4a;        /* 主要文字顏色 */
+      --text-muted: #999999;       /* 時間/次要文字顏色 */
+      
+      /* 【亮起/聚焦特效顏色】 */
+      --highlight-border: #ff1493; /* 聚焦卡片邊框色 (DeepPink) */
+      --highlight-glow: rgba(255, 20, 147, 0.35); /* 聚焦卡片發光陰影 */
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Fredoka', 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+      /* 【動畫過渡速度】 */
+      --card-transition-time: 0.5s; /* 卡片放大、縮小、模糊與發光的切換時間 */
+    }
 
-        body {
-            background-color: var(--bg-color);
-            /* CSS 繪製粉白波卡圓點 (Polka Dot Pattern) */
-            background-image: 
-                radial-gradient(#ffffff 22%, transparent 23%),
-                radial-gradient(#ffffff 22%, transparent 23%);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
-            color: var(--text-dark);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2.5rem 1rem;
-            position: relative;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        /* 裝飾性背景光暈 */
-        .ambient-glow {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 182, 193, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-            filter: blur(40px);
-        }
+    body {
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 40px 20px;
+      
+      /* 【粉白波點背景】使用 CSS radial-gradient 製作畫布圓點 */
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(var(--dot-color) 18%, transparent 18%),
+        radial-gradient(var(--dot-color) 18%, transparent 18%);
+      background-size: 32px 32px; /* 調整波點間距大小 */
+      background-position: 0 0, 16px 16px;
+    }
 
-        .container {
-            max-width: 980px;
-            width: 100%;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    /* 頁面大標題 */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-        /* ==========================================
-           2. 中央大頭貼與個人資訊
-           ========================================== */
-        .profile-section {
-            text-align: center;
-            margin-bottom: 2.8rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    header h1 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      letter-spacing: 2px;
+      background: #ffffff;
+      display: inline-block;
+      padding: 12px 36px;
+      border-radius: 50px;
+      box-shadow: 0 6px 20px rgba(255, 105, 180, 0.2);
+      border: 2px solid var(--dot-color);
+    }
 
-        /* 粉白圓潤頭像框動畫 */
-        .avatar-container {
-            position: relative;
-            width: 135px;
-            height: 135px;
-            margin-bottom: 1.2rem;
-            border-radius: 50%;
-            padding: 6px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff85a2 50%, #f7aef8 100%);
-            box-shadow: 0 10px 25px rgba(255, 133, 162, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.8);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+    /* =========================================================
+       2. 載入中酷炫動畫 (Loading Animation)
+       ========================================================= */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 80px;
+    }
 
-        .avatar-container:hover {
-            transform: scale(1.08) rotate(4deg);
-            box-shadow: 0 15px 30px rgba(255, 71, 126, 0.4);
-        }
+    /* 旋轉雙環動畫 */
+    .spinner {
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
 
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            background-color: #ffffff;
-            display: block;
-            border: 3px solid #ffffff;
-        }
+    .spinner div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      margin: 7px;
+      border: 5px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spinner-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: var(--primary-color) transparent transparent transparent;
+    }
 
-        .profile-name {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--text-pink);
-            letter-spacing: 1.5px;
-            margin-bottom: 0.4rem;
-            text-shadow: 2px 2px 0px #ffffff, 4px 4px 10px rgba(255, 133, 162, 0.2);
-        }
+    .spinner div:nth-child(1) { animation-delay: -0.45s; }
+    .spinner div:nth-child(2) { animation-delay: -0.3s; }
+    .spinner div:nth-child(3) { animation-delay: -0.15s; }
 
-        .profile-subtitle {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #b56576;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 4px 16px;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
-        }
+    @keyframes spinner-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-        /* ==========================================
-           3. 16 個按鈕網格排版 (CSS Grid)
-           ========================================== */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            width: 100%;
-        }
+    #loading p {
+      margin-top: 24px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      letter-spacing: 3px;
+      animation: pulse 1.5s ease-in-out infinite alternate;
+    }
 
-        .card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 115px;
-            padding: 1.2rem 1rem;
-            border-radius: 22px;
-            text-decoration: none;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow: hidden;
-            text-align: center;
-        }
+    @keyframes pulse {
+      from { opacity: 0.5; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1.02); }
+    }
 
-        /* ------------------------------------------
-           已解鎖狀態按鈕
-           ------------------------------------------ */
-        .card.unlocked {
-            background: var(--card-bg-unlocked);
-            border: 2px solid var(--card-border-unlocked);
-            box-shadow: 0 8px 20px rgba(255, 133, 162, 0.15);
-            backdrop-filter: blur(8px);
-            cursor: pointer;
-        }
+    /* =========================================================
+       3. 瀑布流卡片牆 (Masonry Layout)
+       ========================================================= */
+    .masonry-wall {
+      /* 使用 CSS Column-count 打造高低錯落的瀑布流效果 */
+      column-count: 3;          /* 桌面版預設 3 欄 */
+      column-gap: 24px;         /* 欄與欄之間的間隔 */
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px;
+    }
 
-        /* 滑過亮光微粒動畫 */
-        .card.unlocked::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-            transform: rotate(45deg) translateY(-100%);
-            transition: transform 0.6s ease;
-        }
+    /* 響應式佈局：依螢幕寬度自動調控欄數 */
+    @media (max-width: 900px) {
+      .masonry-wall { column-count: 2; }
+    }
+    @media (max-width: 600px) {
+      .masonry-wall { column-count: 1; }
+    }
 
-        .card.unlocked:hover::before {
-            transform: rotate(45deg) translateY(100%);
-        }
+    /* 單張卡片基本樣式 */
+    .card {
+      break-inside: avoid;      /* 防止卡片內容在欄位交界處被切斷 */
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      border: 2px solid transparent;
+      
+      /* 設定過渡時間，讓動畫切換平滑順暢 */
+      transition: all var(--card-transition-time) cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      will-change: transform, opacity, filter;
+    }
 
-        .card.unlocked:hover {
-            transform: translateY(-8px) scale(1.03);
-            background: #ffffff;
-            border-color: var(--pink-accent);
-            box-shadow: 0 14px 28px rgba(255, 71, 126, 0.25);
-        }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--dot-color);
+    }
 
-        .card.unlocked .week-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--pink-primary);
-            letter-spacing: 1px;
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
-        }
+    .card-name {
+      font-weight: bold;
+      font-size: 1.15rem;
+      color: var(--primary-color);
+    }
 
-        .card.unlocked .title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1.35;
-        }
+    .card-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
 
-        /* ------------------------------------------
-           未解鎖狀態按鈕 - 黑色風格
-           ------------------------------------------ */
-        .card.locked {
-            background: var(--locked-bg);
-            border: 2px solid var(--locked-border);
-            cursor: not-allowed;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
+    .card-content {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      word-break: break-word;   /* 長英文單字/網址自動換行 */
+      white-space: pre-wrap;    /* 保留留言者原本輸入的換行符號 */
+    }
 
-        .card.locked .lock-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.3rem;
-            transition: transform 0.3s ease;
-        }
+    /* =========================================================
+       4. 輪播 Highlight 特效 (被選中 vs 未被選中卡片)
+       ========================================================= */
+    /* 當輪播啟動時，預設讓所有卡片稍微變暗、模糊與縮小 */
+    .masonry-wall.has-highlight .card {
+      opacity: 0.45;
+      filter: blur(1.5px);
+      transform: scale(0.96);
+    }
 
-        .card.locked .week-badge {
-            font-size: 0.8rem;
-            color: var(--locked-text);
-            font-weight: 600;
-        }
-
-        .card.locked:hover {
-            border-color: #555566;
-            background: #25252d;
-        }
-
-        .card.locked:hover .lock-icon {
-            transform: scale(1.25) rotate(-12deg);
-        }
-
-        /* 點擊鎖定項目的搖晃動畫 */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
-        }
-
-        .card.shake {
-            animation: shake 0.4s ease-in-out;
-            border-color: #ff4757 !important;
-        }
-
-        /* ==========================================
-           4. 響應式佈局 (Responsive Design)
-           ========================================== */
-        @media (max-width: 880px) {
-            .grid-container {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .grid-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-
-            .profile-name {
-                font-size: 1.8rem;
-            }
-
-            .card {
-                min-height: 100px;
-                padding: 1rem 0.6rem;
-                border-radius: 18px;
-            }
-
-            .card.unlocked .title {
-                font-size: 0.95rem;
-            }
-        }
-    </style>
+    /* 當前被選中 (Highlight) 的卡片：放大亮起、外發光與上浮 */
+    .masonry-wall.has-highlight .card.highlight {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1.08) translateY(-6px);
+      border-color: var(--highlight-border);
+      box-shadow: 0 12px 28px var(--highlight-glow),
+                  0 0 18px rgba(255, 105, 180, 0.4);
+      z-index: 10;
+      background: #ffffff;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- 背景浪漫粉光 -->
-    <div class="ambient-glow"></div>
+  <header>
+    <h1>💖 朋友對我的動態留言板 💖</h1>
+  </header>
 
-    <div class="container">
-        <!-- 個人檔案區域 -->
-        <header class="profile-section">
-            <div class="avatar-container">
-                <img src="https://i.postimg.cc/4NYVSstb/IMG-6408.jpg" alt="Avatar" class="avatar-img">
-            </div>
-            <h1 class="profile-name">鄭詠薰</h1>
-            <span class="profile-subtitle">Web Development Portfolio</span>
-        </header>
-
-        <!-- 16 個課程選單按鈕 -->
-        <main class="grid-container">
-            <!-- 已解鎖按鈕 1 -->
-            <a href="w1/index.html" class="card unlocked">
-                <span class="week-badge">Week 01</span>
-                <span class="title">Week 1 - 數位名片</span>
-            </a>
-
-            <!-- 已解鎖按鈕 2 -->
-            <a href="w2/index.html" class="card unlocked">
-                <span class="week-badge">Week 02</span>
-                <span class="title">Week 2 - 今天吃甚麼?</span>
-            </a>
-
-            <!-- 未解鎖按鈕 3 -->
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 03</span>
-            </div>
-
-            <!-- 已解鎖按鈕 4 (已調整) -->
-            <a href="w4/index.html" class="card unlocked">
-                <span class="week-badge">Week 04</span>
-                <span class="title">Week 4 - 悄悄話</span>
-            </a>
-
-            <!-- 未解鎖按鈕 (Week 5 - 16) -->
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 05</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 06</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 07</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 08</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 09</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 10</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 11</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 12</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 13</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 14</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 15</span>
-            </div>
-
-            <div class="card locked" onclick="triggerLockedFeedback(this)">
-                <span class="lock-icon">🔒</span>
-                <span class="week-badge">Week 16</span>
-            </div>
-        </main>
+  <!-- 讀取中動畫區塊 -->
+  <div id="loading">
+    <div class="spinner">
+      <div></div><div></div><div></div><div></div>
     </div>
+    <p>讀取留言中...</p>
+  </div>
 
-    <!-- 未解鎖項目的點擊反饋腳本 -->
-    <script>
-        function triggerLockedFeedback(element) {
-            element.classList.remove('shake');
-            void element.offsetWidth; // 強制重繪引發動畫
-            element.classList.add('shake');
+  <!-- 留言瀑布流區塊 -->
+  <main id="wall" class="masonry-wall" style="display: none;"></main>
+
+  <script>
+    // =========================================================
+    // 全域變數與參數控制
+    // =========================================================
+    
+    // Google 試算表 CSV 網址
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRk52u2qOqP3rjYmLhmhLWAme9oIBAYoJI-s6uBt2qow2GxOf7cmhRQkvwI9Ybv5PBImFro6P2d-9t/pub?output=csv';
+
+    // 【輪播秒數設定】控制卡片輪播亮起的間隔時間（單位：毫秒，3000ms = 3 秒）
+    const ROTATE_INTERVAL = 3000; 
+
+    let currentIndex = -1; // 當前亮起的卡片索引
+    let cards = [];        // 儲存所有卡片 DOM 元素的陣列
+    let timer = null;      // 存放 setInterval 的計時器
+
+    // DOM 載入後觸發資料讀取
+    document.addEventListener('DOMContentLoaded', initBoard);
+
+    /**
+     * 1. 主初始化函式：讀取 CSV 並渲染卡片
+     */
+    async function initBoard() {
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+        
+        const csvText = await response.text();
+        const parsedData = parseCSV(csvText);
+
+        renderCards(parsedData);
+      } catch (error) {
+        console.error('抓取留言資料失敗:', error);
+        document.getElementById('loading').innerHTML = `
+          <p style="color: #d9534f; animation: none;">❌ 讀取留言失敗，請確認網路連線或網址設定。</p>
+        `;
+      }
+    }
+
+    /**
+     * 2. CSV 解析器：正確處理欄位內包含「逗號」、「引號」與「換行」的情況
+     */
+    function parseCSV(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentField = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            // 處理雙引號轉義 (例如 CSV 中的 "" 轉為單個 ")
+            currentField += '"';
+            i++;
+          } else {
+            // 切換是否在引號內的狀態
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          // 當不在引號內遇到逗號，代表一個欄位結束
+          currentRow.push(currentField.trim());
+          currentField = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+          // 當不在引號內遇到換行，代表一整列結束
+          if (char === '\r' && nextChar === '\n') i++; // 跳過 \r\n
+          currentRow.push(currentField.trim());
+          if (currentRow.length > 0 && currentRow.some(field => field !== '')) {
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentField = '';
+        } else {
+          currentField += char;
         }
-    </script>
+      }
+
+      // 處理最後一個欄位與最後一列
+      if (currentField || currentRow.length > 0) {
+        currentRow.push(currentField.trim());
+        rows.push(currentRow);
+      }
+
+      // 跳過第一列 (標題列：時間戳記, 名字, 悄悄話)
+      const dataRows = rows.slice(1);
+
+      // 轉換成物件陣列 (欄位順序：0:時間, 1:名字, 2:留言內容)
+      return dataRows.map(row => ({
+        timestamp: row[0] || '',
+        name: row[1] || '匿名朋友',
+        content: row[2] || ''
+      })).filter(item => item.content !== ''); // 過濾空內容留言
+    }
+
+    /**
+     * 3. 將資料動態產生 DOM 卡片並掛載至畫面
+     */
+    function renderCards(data) {
+      const loadingEl = document.getElementById('loading');
+      const wallEl = document.getElementById('wall');
+
+      if (data.length === 0) {
+        loadingEl.innerHTML = '<p>目前還沒有任何留言喔！</p>';
+        return;
+      }
+
+      // 隱藏 Loading 動畫，顯示瀑布流牆
+      loadingEl.style.display = 'none';
+      wallEl.style.display = 'block';
+      wallEl.innerHTML = '';
+
+      // 動態建立卡片
+      data.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-name">${escapeHTML(item.name)}</span>
+            <span class="card-time">${escapeHTML(formatTimestamp(item.timestamp))}</span>
+          </div>
+          <div class="card-content">${escapeHTML(item.content)}</div>
+        `;
+        wallEl.appendChild(card);
+      });
+
+      // 取得所有產生的卡片元件陣列
+      cards = Array.from(document.querySelectorAll('.card'));
+
+      // 開始輪播展覽特效
+      startHighlightRotation();
+    }
+
+    /**
+     * 4. 輪播 Highlight 控制 (setInterval 每隔指定秒數讓一張卡片亮起)
+     */
+    function startHighlightRotation() {
+      if (cards.length === 0) return;
+
+      const wallEl = document.getElementById('wall');
+      wallEl.classList.add('has-highlight'); // 啟動「未選中卡片暗化/模糊」樣式
+
+      // 載入完成後立即亮起第一張卡片
+      rotateCard();
+
+      // 設定計時器定期輪播
+      timer = setInterval(rotateCard, ROTATE_INTERVAL);
+    }
+
+    function rotateCard() {
+      // 移除前一張卡片的亮起狀態
+      if (currentIndex >= 0 && cards[currentIndex]) {
+        cards[currentIndex].classList.remove('highlight');
+      }
+
+      // 算下一張卡片的索引 (達到最後一張時自動循環回第 0 張)
+      currentIndex = (currentIndex + 1) % cards.length;
+
+      // 加上亮起特效
+      const activeCard = cards[currentIndex];
+      activeCard.classList.add('highlight');
+
+      // 平滑捲動至視窗畫面適當位置 (確保長頁面時亮起卡片在可視範圍)
+      activeCard.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    }
+
+    /**
+     * 工具函式：XSS 特殊字元轉義，確保顯示安全
+     */
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /**
+     * 工具函式：美化時間顯示 (簡化顯示月日與時間)
+     */
+    function formatTimestamp(timeStr) {
+      if (!timeStr) return '';
+      // 簡單取日期與時間部分
+      const parts = timeStr.split(' ');
+      return parts.length > 1 ? `${parts[0]}` : timeStr;
+    }
+  </script>
 </body>
 </html>
